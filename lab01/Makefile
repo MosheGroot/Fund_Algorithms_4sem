@@ -1,20 +1,39 @@
-SRCS	= matrix_nn.cpp
-HEADERS	= .
+SRCS_DIR= ./srcs
+OBJS_DIR= ./objs
+HEADERS	= ./headers
+
+ND_OBJS	= debug.o matrix_nn.o 
+NM_OBJS	= main.o matrix_nn.o parser.o
+
+D_OBJS	= $(addprefix $(OBJS_DIR)/,$(ND_OBJS))
+M_OBJS	= $(addprefix $(OBJS_DIR)/,$(NM_OBJS))
 
 CC		= g++
-CFLAGS	= -Wall -Wextra -std=c++20
+CFLAGS	= -Wall -Wextra -std=c++2a
 
-NAME	= a.out
+M_NAME	= a.out
+D_NAME	= d.out
 
-all		: $(NAME)
+$(OBJS_DIR)/%.o : $(SRCS_DIR)/%.cpp
+		$(CC) $(CFLAGS) -I$(HEADERS) -c $< -o $@
 
-$(NAME)	:
-		$(CC) $(CFLAGS) $(SRCS) main.cpp -o $(NAME)
+all		: $(M_NAME)
+		
+		
+debug	: $(D_NAME)
+		
+
+$(M_NAME)	: $(M_OBJS)
+		$(CC) $(CFLAGS) $(M_OBJS) -o $(M_NAME)
+
+$(D_NAME)	: $(D_OBJS)
+		$(CC) $(CFLAGS) $(D_OBJS) -o $(D_NAME)
 
 clean	:
-		rm -f $(NAME)
+		rm -f $(OBJS_DIR)/*
 
-re		: clean all
+fclean	: clean
+		rm -f $(M_NAME) $(D_NAME)
+
+re		: fclean all
 		
-debug	:
-		$(CC) $(CFLAGS) $(SRCS) debug.cpp -o $(NAME)
