@@ -2,7 +2,7 @@ SRCS	= main.cpp matrix_nn.cpp
 HEADERS	= .
 
 CC		= g++
-CFLAGS	= -Wall -Wextra
+CFLAGS	= -Wall -Wextra -std=c++20
 
 NAME	= a.out
 

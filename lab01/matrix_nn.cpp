@@ -129,8 +129,10 @@ Matrix_NN& Matrix_NN::operator=(const std::initializer_list<double> &list)
 	}
 
 	size_t i = 0;
-	for (const auto& elem : list)
+	for (const auto& elem : list) {
 		data[i / N][i % N] = elem;
+		i++;
+	}
 	return (*this);
 }
 
@@ -337,17 +339,17 @@ double det(const Matrix_NN& m)
 
 	size_t i, j, k;
 	double coeff;
-	for (j = 0; j < m.N; j++)
-		for (i = j + 1; i < m.N; i++)
+	for (j = 0; j < tmp.N; j++)
+		for (i = j + 1; i < tmp.N; i++)
 		{
-			coeff = m.data[i][j] / m.data[j][j];
-			for (k = 0; k < m.N; k++)
-				m.data[j][k] -= m.data[i][k] * coeff;
+			coeff = tmp.data[i][j] / tmp.data[j][j];
+			for (k = j; k < tmp.N; k++)
+				tmp.data[i][k] -= tmp.data[j][k] * coeff;
 		}
 
 	double out = 1;
-	for (i = 0; i < m.N; i++)
-		out *= m.data[i][i];
+	for (i = 0; i < tmp.N; i++)
+		out *= tmp.data[i][i];
 
 	return out;
 }
@@ -358,7 +360,7 @@ Matrix_NN invert(const Matrix_NN& m)
 {
 	Matrix_NN tmp(m), inv(m.N);
 	
-	size_t i, j, k;
+	int i, j, k;
 	for (i = 0; i < m.N; i++)
 		for (j = 0; j < m.N; j++)
 			if (i == j)
@@ -367,16 +369,33 @@ Matrix_NN invert(const Matrix_NN& m)
 				inv.data[i][j] = 0.;
 
 	double coeff;
-	for (j = 0; j < m.N; j++)
-		for (i = j + 1; i < m.N; i++)
-		{
-			coeff = m.data[i][j] / m.data[j][j];
-			for (k = 0; k < m.N; k++)
-			{
-				m.data[j][k] -= m.data[i][k] * coeff;
-				inv.data[j][k] -= inv.data[i][k] * coeff;
+	for (j = 0; j < tmp.N; j++) {
+		for (i = j + 1; i < tmp.N; i++) {
+			coeff = tmp.data[i][j] / tmp.data[j][j];
+			for (k = j; k < tmp.N; k++) {
+				tmp.data[i][k] -= tmp.data[j][k] * coeff;
+				inv.data[i][k] -= inv.data[j][k] * coeff;
 			}
 		}
+	}
+
+	for (j = tmp.N - 1; j >= 0; j--) {
+		for (i = j - 1; i >= 0; i--) {
+			coeff = tmp.data[i][j] / tmp.data[j][j];
+			for (k = j; k >= 0; k--) {
+				tmp.data[i][k] -= tmp.data[j][k] * coeff;
+				inv.data[i][k] -= inv.data[j][k] * coeff;
+			}
+		}
+	}
+
+	for (j = 0; j < tmp.N; j++)
+	{
+		coeff = tmp.data[j][j];
+		tmp.data[j][j] /= coeff;
+		for (k = 0; k < tmp.N; k++)
+			inv.data[j][k] /= coeff;
+	}
 
 	return inv;
 }
