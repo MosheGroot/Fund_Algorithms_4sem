@@ -17,17 +17,23 @@ D_NAME	= d.out
 $(OBJS_DIR)/%.o : $(SRCS_DIR)/%.cpp
 		$(CC) $(CFLAGS) -I$(HEADERS) -c $< -o $@
 
+dir_obj	: 
+		mkdir -p objs
+
 all		: $(M_NAME)
 		
 		
 debug	: $(D_NAME)
-		
 
-$(M_NAME)	: $(M_OBJS)
+$(M_NAME)	: dir_obj $(M_OBJS)
 		$(CC) $(CFLAGS) $(M_OBJS) -o $(M_NAME)
 
-$(D_NAME)	: $(D_OBJS)
+$(D_NAME)	: dir_obj $(D_OBJS)
 		$(CC) $(CFLAGS) $(D_OBJS) -o $(D_NAME)
+
+run		: $(M_NAME)
+		echo "===================="
+		./a.out test && cat test.tex
 
 clean	:
 		rm -f $(OBJS_DIR)/*

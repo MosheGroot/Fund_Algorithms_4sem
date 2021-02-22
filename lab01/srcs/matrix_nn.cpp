@@ -160,6 +160,11 @@ bool Matrix_NN::operator==(const Matrix_NN &b)
 	return true;
 }
 
+bool Matrix_NN::operator!=(const Matrix_NN &b)
+{
+	return (!(*this == b));
+}
+
 /*==========================*/
 /*		OPERATORS +-*\		*/
 /*==========================*/
@@ -360,26 +365,27 @@ Matrix_NN invert(const Matrix_NN& m)
 {
 	Matrix_NN tmp(m), inv(m.N);
 	
-	int i, j, k;
-	for (i = 0; i < m.N; i++)
-		for (j = 0; j < m.N; j++)
+	long long i, j, k;
+	long long size = m.N;
+	for (i = 0; i < size; i++)
+		for (j = 0; j < size; j++)
 			if (i == j)
 				inv.data[i][j] = 1.;
 			else
 				inv.data[i][j] = 0.;
 
 	double coeff;
-	for (j = 0; j < tmp.N; j++) {
-		for (i = j + 1; i < tmp.N; i++) {
+	for (j = 0; j < size; j++) {
+		for (i = j + 1; i < size; i++) {
 			coeff = tmp.data[i][j] / tmp.data[j][j];
-			for (k = j; k < tmp.N; k++) {
+			for (k = j; k < size; k++) {
 				tmp.data[i][k] -= tmp.data[j][k] * coeff;
 				inv.data[i][k] -= inv.data[j][k] * coeff;
 			}
 		}
 	}
 
-	for (j = tmp.N - 1; j >= 0; j--) {
+	for (j = size - 1; j >= 0; j--) {
 		for (i = j - 1; i >= 0; i--) {
 			coeff = tmp.data[i][j] / tmp.data[j][j];
 			for (k = j; k >= 0; k--) {
@@ -389,11 +395,11 @@ Matrix_NN invert(const Matrix_NN& m)
 		}
 	}
 
-	for (j = 0; j < tmp.N; j++)
+	for (j = 0; j < size; j++)
 	{
 		coeff = tmp.data[j][j];
 		tmp.data[j][j] /= coeff;
-		for (k = 0; k < tmp.N; k++)
+		for (k = 0; k < size; k++)
 			inv.data[j][k] /= coeff;
 	}
 
@@ -457,7 +463,7 @@ Matrix_NN exp(const Matrix_NN &m, size_t k)
 
 std::string Matrix_NN::convert() const
 {
-	std::string out = "$$\\begin{pmatrix}";
+	std::string out = "\\begin{pmatrix}";
 
 	size_t i, j;
 	for (i = 0; i < N; i++)
@@ -468,9 +474,10 @@ std::string Matrix_NN::convert() const
 			out += " & ";
 		}
 		out += std::to_string(data[i][N - 1]);
-		out += "\\\\";
+		if (i != N - 1)
+			out += "\\\\";
 	}
 
-	out += "\\end{pmatrix}$$";
+	out += "\\end{pmatrix}";
 	return out;
 }

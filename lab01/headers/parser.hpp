@@ -1,3 +1,5 @@
 #pragma once
 
-void parse(const char *filename);
+#include <string>
+
+std::string parse(const char *filename);

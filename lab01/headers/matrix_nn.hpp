@@ -30,6 +30,7 @@ public:
 
 	double* operator[](const size_t i);
 	bool operator==(const Matrix_NN &b);
+	bool operator!=(const Matrix_NN &b);
 
 	Matrix_NN operator+(const Matrix_NN &b);
 	Matrix_NN operator-(const Matrix_NN &b);
