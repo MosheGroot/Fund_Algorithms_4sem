@@ -140,12 +140,12 @@ Matrix_NN& Matrix_NN::operator=(const std::initializer_list<double> &list)
 /*		OPERATORS []==		*/
 /*==========================*/
 
-double* Matrix_NN::operator[](const size_t i)
+double* Matrix_NN::operator[](const size_t i) const
 {
 	return (this->data[i]);
 }
 
-bool Matrix_NN::operator==(const Matrix_NN &b)
+bool Matrix_NN::operator==(const Matrix_NN &b) const
 {
 	if (N != b.N)
 		return false;
@@ -160,86 +160,9 @@ bool Matrix_NN::operator==(const Matrix_NN &b)
 	return true;
 }
 
-bool Matrix_NN::operator!=(const Matrix_NN &b)
+bool Matrix_NN::operator!=(const Matrix_NN &b) const
 {
 	return (!(*this == b));
-}
-
-/*==========================*/
-/*		OPERATORS +-*\		*/
-/*==========================*/
-
-Matrix_NN Matrix_NN::operator+(const Matrix_NN &b)
-{
-	if (N != b.N)
-		throw std::invalid_argument("Matrixes must be same sizes!");
-
-	Matrix_NN c(*this);
-	size_t i, j;
-	for (i = 0; i < N; i++)
-		for (j = 0; j < N; j++)
-			c.data[i][j] += b.data[i][j];
-	return c;
-}
-
-Matrix_NN Matrix_NN::operator-(const Matrix_NN &b)
-{
-	if (N != b.N)
-		throw std::invalid_argument("Matrixes must be same sizes!");
-
-	Matrix_NN c(*this);
-	size_t i, j;
-	for (i = 0; i < N; i++)
-		for (j = 0; j < N; j++)
-			c.data[i][j] -= b.data[i][j];
-	return c;
-}
-
-Matrix_NN Matrix_NN::operator*(const Matrix_NN &b)
-{
-	if (N != b.N)
-		throw std::invalid_argument("Matrixes must be same sizes!");
-
-	Matrix_NN c(N);
-	size_t i, j, k;
-	for (i = 0; i < N; i++)
-		for (j = 0; j < N; j++)
-		{
-			c.data[i][j] = 0;
-			for (k = 0; k < N; k++)
-				c.data[i][j] += data[i][k] * b.data[k][j];
-		}
-	return c;
-}
-
-Matrix_NN Matrix_NN::operator*(const double l)
-{
-	Matrix_NN c(*this);
-	size_t i, j;
-	for (i = 0; i < N; i++)
-		for (j = 0; j < N; j++)
-			c.data[i][j] *= l;
-	return c;
-}
-
-Matrix_NN operator*(const double l, const Matrix_NN &m)
-{
-	Matrix_NN c(m);
-	size_t i, j;
-	for (i = 0; i < m.N; i++)
-		for (j = 0; j < m.N; j++)
-			c.data[i][j] *= l;
-	return c;
-}
-
-Matrix_NN Matrix_NN::operator/(const double l)
-{
-	Matrix_NN c(*this);
-	size_t i, j;
-	for (i = 0; i < N; i++)
-		for (j = 0; j < N; j++)
-			c[i][j] /= l;
-	return c;
 }
 
 /*==========================*/
@@ -275,8 +198,16 @@ Matrix_NN& Matrix_NN::operator*=(const Matrix_NN &b)
 	if (N != b.N)
 		throw std::invalid_argument("Matrixes must be same sizes!");
 
-	Matrix_NN tmp = *this * b;
-	*this = tmp;
+	Matrix_NN c(N);
+	size_t i, j, k;
+	for (i = 0; i < N; i++)
+		for (j = 0; j < N; j++)
+		{
+			c.data[i][j] = 0;
+			for (k = 0; k < N; k++)
+				c.data[i][j] += data[i][k] * b.data[k][j];
+		}
+	*this = c;
 	return (*this);
 }
 
@@ -296,6 +227,64 @@ Matrix_NN& Matrix_NN::operator/=(const double l)
 		for (j = 0; j < N; j++)
 			data[i][j] /= l;
 	return (*this);
+}
+
+/*==========================*/
+/*		OPERATORS +-*\		*/
+/*==========================*/
+
+Matrix_NN Matrix_NN::operator+(const Matrix_NN &b) const
+{
+	if (N != b.N)
+		throw std::invalid_argument("Matrixes must be same sizes!");
+
+	Matrix_NN c(*this);
+	c += b;
+	return c;
+}
+
+Matrix_NN Matrix_NN::operator-(const Matrix_NN &b) const
+{
+	if (N != b.N)
+		throw std::invalid_argument("Matrixes must be same sizes!");
+
+	Matrix_NN c(*this);
+	c -= b;
+	return c;
+}
+
+Matrix_NN Matrix_NN::operator*(const Matrix_NN &b) const
+{
+	if (N != b.N)
+		throw std::invalid_argument("Matrixes must be same sizes!");
+
+	Matrix_NN c(*this);
+	c *= b;
+	return c;
+}
+
+Matrix_NN Matrix_NN::operator*(const double l) const
+{
+	Matrix_NN c(*this);
+	c *= l;
+	return c;
+}
+
+Matrix_NN operator*(const double l, const Matrix_NN &m)
+{
+	Matrix_NN c(m);
+	size_t i, j;
+	for (i = 0; i < m.N; i++)
+		for (j = 0; j < m.N; j++)
+			c.data[i][j] *= l;
+	return c;
+}
+
+Matrix_NN Matrix_NN::operator/(const double l) const
+{
+	Matrix_NN c(*this);
+	c *= l;
+	return c;
 }
 
 /*==========================*/
@@ -335,6 +324,20 @@ std::istream& operator>>(std::istream& is, const Matrix_NN& m)
 
 /* determinant */
 
+static int switch_rows(Matrix_NN &tmp, size_t j0)
+{
+	size_t j1;
+	for (j1 = j0 + 1; j1 < tmp.size(); j1++)
+		if (tmp[j1][j0] > 1e-6)
+			break;
+	if (j1 == tmp.size())
+		return -1;
+
+	for (size_t i = 0; i++ < tmp.size(); i++)
+		std::swap(tmp[j0][i], tmp[j1][i]);
+	return 0;
+}
+
 double det(const Matrix_NN& m)
 {
 	if (!m.N)
@@ -345,12 +348,16 @@ double det(const Matrix_NN& m)
 	size_t i, j, k;
 	double coeff;
 	for (j = 0; j < tmp.N; j++)
+	{
+		if (tmp.data[j][j] && switch_rows(tmp, j) == -1)
+				return 0;
 		for (i = j + 1; i < tmp.N; i++)
 		{
 			coeff = tmp.data[i][j] / tmp.data[j][j];
 			for (k = j; k < tmp.N; k++)
 				tmp.data[i][k] -= tmp.data[j][k] * coeff;
 		}
+	}
 
 	double out = 1;
 	for (i = 0; i < tmp.N; i++)

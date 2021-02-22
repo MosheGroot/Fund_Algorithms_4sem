@@ -3,6 +3,7 @@
 #include <iostream>
 #include <initializer_list>
 #include <exception>
+#include <algorithm>
 #include "tex_convertible.hpp"
 
 class Matrix_NN : public TeX_convertible
@@ -28,16 +29,16 @@ public:
 	Matrix_NN& operator=(const Matrix_NN &b);
 	Matrix_NN& operator=(const std::initializer_list<double> &list);
 
-	double* operator[](const size_t i);
-	bool operator==(const Matrix_NN &b);
-	bool operator!=(const Matrix_NN &b);
+	double* operator[](const size_t i) const;
+	bool operator==(const Matrix_NN &b) const;
+	bool operator!=(const Matrix_NN &b) const;
 
-	Matrix_NN operator+(const Matrix_NN &b);
-	Matrix_NN operator-(const Matrix_NN &b);
-	Matrix_NN operator*(const Matrix_NN &b);
-	Matrix_NN operator*(const double l);
+	Matrix_NN operator+(const Matrix_NN &b) const;
+	Matrix_NN operator-(const Matrix_NN &b) const;
+	Matrix_NN operator*(const Matrix_NN &b) const;
+	Matrix_NN operator*(const double l) const;
 	friend Matrix_NN operator*(const double l, const Matrix_NN& dt);
-	Matrix_NN operator/(const double l);
+	Matrix_NN operator/(const double l) const;
 
 	Matrix_NN& operator+=(const Matrix_NN &b);
 	Matrix_NN& operator-=(const Matrix_NN &b);
@@ -45,8 +46,8 @@ public:
 	Matrix_NN& operator*=(const double l);
 	Matrix_NN& operator/=(const double l);
 
-    friend std::ostream& operator<<(std::ostream& os, const Matrix_NN& m);
-	friend std::istream& operator>>(std::istream& is, const Matrix_NN& m);
+    friend std::ostream& operator<<(std::ostream& os, const Matrix_NN& m) const;
+	friend std::istream& operator>>(std::istream& is, const Matrix_NN& m) const;
 
 	friend double det(const Matrix_NN& m);
 	friend Matrix_NN invert(const Matrix_NN &m);
@@ -54,6 +55,6 @@ public:
 	friend double trace(const Matrix_NN &m);
 	friend Matrix_NN exp(const Matrix_NN &m, size_t k);
 
-	size_t size() { return N; }
+	size_t size() const { return N; }
 	std::string convert() const override;	
 };
