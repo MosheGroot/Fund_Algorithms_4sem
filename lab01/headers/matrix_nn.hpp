@@ -46,8 +46,8 @@ public:
 	Matrix_NN& operator*=(const double l);
 	Matrix_NN& operator/=(const double l);
 
-    friend std::ostream& operator<<(std::ostream& os, const Matrix_NN& m) const;
-	friend std::istream& operator>>(std::istream& is, const Matrix_NN& m) const;
+	friend std::ostream& operator<<(std::ostream& os, const Matrix_NN& m);
+	friend std::istream& operator>>(std::istream& is, Matrix_NN& m);
 
 	friend double det(const Matrix_NN& m);
 	friend Matrix_NN invert(const Matrix_NN &m);

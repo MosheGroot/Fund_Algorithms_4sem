@@ -309,7 +309,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix_NN& m)
 	return os;
 }
 
-std::istream& operator>>(std::istream& is, const Matrix_NN& m)
+std::istream& operator>>(std::istream& is, Matrix_NN& m)
 {
 	size_t i, j;
 	for (i = 0; i < m.N; i++)
