@@ -6,8 +6,12 @@
 #include <map>
 #include "tex_convertible.hpp"
 
+class Polynome; // forward declaring
+
 class Monome : public TeX_convertible
 {
+friend class Polynome;
+
 private:
 	int coeff;
 	std::map<char, unsigned int> vars;
@@ -39,7 +43,15 @@ public:
 	friend std::ostream& operator<<(std::ostream& os, const Monome &m);
 	friend std::istream& operator>>(std::istream& is, Monome &m);
 
+	friend bool compare_ascending(const Monome &a, const Monome &b);
+	friend bool compare_vars(const Monome &a, const Monome &b);
+	friend bool is_harmonic_polynome(const Polynome &m);
+
+	unsigned int general_degree() const;
 	std::string convert() const;
 
 	~Monome() {};
 };
+
+bool compare_ascending(const Monome &a, const Monome &b);
+bool compare_vars(const Monome &a, const Monome &b);

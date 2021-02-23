@@ -1,6 +1,40 @@
 #include "monome.hpp"
 
 /************************/
+/*		UTILS			*/
+/************************/
+
+bool compare_ascending(const Monome &a, const Monome &b)
+{
+	for (const auto& [key, value] : a.vars)
+		if (!(b.vars.contains(key)))
+		{
+			for (const auto& [key2, value2] : b.vars)
+				return (key - key2 <= 0);
+		}
+		else if (value > b.vars.at(key))
+			return false;
+
+	return (a.coeff <= b.coeff);
+}
+
+bool compare_vars(const Monome &a, const Monome &b)
+{
+	for (const auto& [key, value] : a.vars)
+		if (!b.vars.contains(key) || value != b.vars.at(key))
+			return false;
+	return true;
+}
+
+unsigned int Monome::general_degree() const
+{
+	unsigned int degree = 0;
+	for (const auto& [key, value] : vars)
+		degree += value;
+	return degree;
+}
+
+/************************/
 /*	CONSTRUCTOR	& COPY	*/
 /************************/
 
@@ -10,15 +44,28 @@ Monome::Monome(const char *str)
 	if (!str)
 		return;
 	
-	coeff = std::stoi(str);
-	while (*str)
+	coeff = std::atoi(str);
+	size_t minus_count = 0;
+	while (isspace(*str) || *str == '-' || *str == '+')
 	{
-		while (isdigit(*str))
+		if (*str == '-')
+			minus_count++;
+		str++;
+	}	
+	if (!isdigit(*str))
+		coeff = 1 - 2 * (minus_count % 2);
+
+	while (*str)
+{
+		while (isdigit(*str) || isspace(*str))
 			str++;
 		if (!*str)
 			break;
 		
-		vars[*str] = std::atoi(str + 1);
+		if (!isdigit(*(str + 1)))
+			vars[*str] = 1;
+		else
+			vars[*str] = std::atoi(str + 1);
 		str++;
 	}
 }

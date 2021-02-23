@@ -4,10 +4,12 @@ HEADERS	= ./headers
 
 ND1_OBJS= debug1.o matrix_nn.o
 ND2_OBJS= debug2.o monome.o
+ND3_OBJS= debug3.o monome.o polynome.o 
 NM_OBJS	= main.o matrix_nn.o parser.o monome.o
 
 D1_OBJS	= $(addprefix $(OBJS_DIR)/,$(ND1_OBJS))
 D2_OBJS	= $(addprefix $(OBJS_DIR)/,$(ND2_OBJS))
+D3_OBJS	= $(addprefix $(OBJS_DIR)/,$(ND3_OBJS))
 M_OBJS	= $(addprefix $(OBJS_DIR)/,$(NM_OBJS))
 
 CC		= g++
@@ -16,6 +18,7 @@ CFLAGS	= -Wall -Wextra -std=c++2a
 M_NAME	= a.out
 D1_NAME	= d1.out
 D2_NAME	= d2.out
+D3_NAME	= d3.out
 
 $(OBJS_DIR)/%.o : $(SRCS_DIR)/%.cpp
 		$(CC) $(CFLAGS) -I$(HEADERS) -c $< -o $@
@@ -32,6 +35,9 @@ debug1	: $(D1_NAME)
 debug2	: $(D2_NAME)
 		
 
+debug3	: $(D3_NAME)
+		
+
 $(M_NAME)	: dir_obj $(M_OBJS)
 		$(CC) $(CFLAGS) $(M_OBJS) -o $(M_NAME)
 
@@ -41,6 +47,10 @@ $(D1_NAME)	: dir_obj $(D1_OBJS)
 $(D2_NAME)	: dir_obj $(D2_OBJS)
 		$(CC) $(CFLAGS) $(D2_OBJS) -o $(D2_NAME)
 
+$(D3_NAME)	: dir_obj $(D3_OBJS)
+		$(CC) $(CFLAGS) $(D3_OBJS) -o $(D3_NAME)
+
+
 run		: $(M_NAME)
 		echo "===================="
 		./a.out test && cat test.tex
@@ -49,7 +59,7 @@ clean	:
 		rm -f $(OBJS_DIR)/*
 
 fclean	: clean
-		rm -f $(M_NAME) $(D1_NAME) $(D2_NAME)
+		rm -f $(M_NAME) $(D1_NAME) $(D2_NAME) $(D3_NAME)
 
 re		: fclean all
 		
