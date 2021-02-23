@@ -32,7 +32,7 @@
 
 # det, inv ....
 
-det { 2 : 1 2 3 4 } ;
+det { 2 : 1 2 3 4 } ; # 10 expretion
 
 inv ( { 2 : 1 2 3 4 } ) ;
 
@@ -62,7 +62,7 @@ det { 2 : 1 1 0 0 } ;
 
 { 2 : 1 2 3 4 } * inv ( { 2 : 1 2 3 4 } ) ;
 
-
+inv ( { 2 : 0 0 1 1 } ) ;
 
 # specific expretions
 

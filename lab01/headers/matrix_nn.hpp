@@ -4,22 +4,25 @@
 #include <initializer_list>
 #include <exception>
 #include <algorithm>
+#include <memory>
 #include "tex_convertible.hpp"
+
+#define EPS 1e-6
 
 class Matrix_NN : public TeX_convertible
 {
 private:
-	double **data;
+	std::vector<std::vector<double>> data;
 	size_t N;
 
 	void alloc_memory(size_t N);
 	void free_memory();
-	void copy_memory(double **src);
+	void copy_memory(const std::vector<std::vector<double>> &src);
 	void copy_value(double value);
 
 public:
 
-	Matrix_NN() : data(nullptr), N(0) {}
+	Matrix_NN() : N(0) {}
 	Matrix_NN(size_t n, double value=0.);
 	Matrix_NN(const Matrix_NN &copy);	
 	Matrix_NN(const std::initializer_list<double> &list);
@@ -29,7 +32,7 @@ public:
 	Matrix_NN& operator=(const Matrix_NN &b);
 	Matrix_NN& operator=(const std::initializer_list<double> &list);
 
-	double* operator[](const size_t i) const;
+	std::vector<double>& operator[](const size_t i);
 	bool operator==(const Matrix_NN &b) const;
 	bool operator!=(const Matrix_NN &b) const;
 

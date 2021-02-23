@@ -9,28 +9,22 @@ void Matrix_NN::alloc_memory(size_t n)
 	N = n;
 	if (!N)
 	{
-		data = nullptr;
+		data.resize(0);
 		return;
 	}
 
-	if (!(data = new double*[N]))
-		throw std::bad_alloc();
+	data.resize(N); 
 	for (size_t i = 0; i < N; i++)
-		if (!(data[i] = new double[N]))
-			throw std::bad_alloc();
+		data[i].resize(N);
 }
 
 void Matrix_NN::free_memory()
 {
-	for (size_t i = 0; i < N; i++)
-		delete[] data[i];
-	delete[] data;
-
-	data = nullptr;
+	data.resize(0);
 	N = 0;
 }
 
-void Matrix_NN::copy_memory(double **src)
+void Matrix_NN::copy_memory(const std::vector<std::vector<double>> &src)
 {
 	size_t i, j;
 	for (i = 0; i < N; i++)
@@ -96,8 +90,6 @@ Matrix_NN::Matrix_NN(const Matrix_NN &copy)
 
 Matrix_NN::~Matrix_NN()
 {
-	if (!data)
-		return;
 	free_memory();
 }
 
@@ -140,7 +132,7 @@ Matrix_NN& Matrix_NN::operator=(const std::initializer_list<double> &list)
 /*		OPERATORS []==		*/
 /*==========================*/
 
-double* Matrix_NN::operator[](const size_t i) const
+std::vector<double>& Matrix_NN::operator[](const size_t i)
 {
 	return (this->data[i]);
 }
@@ -150,7 +142,6 @@ bool Matrix_NN::operator==(const Matrix_NN &b) const
 	if (N != b.N)
 		return false;
 
-	const double EPS = 1e-6;
 	size_t i, j;
 	for (i = 0; i < b.N; i++)
 		for (j = 0; j < b.N; j++)
@@ -293,12 +284,6 @@ Matrix_NN Matrix_NN::operator/(const double l) const
 
 std::ostream& operator<<(std::ostream& os, const Matrix_NN& m)
 {
-	if (!m.data)
-	{
-		os << std::endl;
-		return os;
-	}
-
 	size_t i, j;
 	for (i = 0; i < m.N; i++)
 	{
@@ -328,13 +313,16 @@ static int switch_rows(Matrix_NN &tmp, size_t j0)
 {
 	size_t j1;
 	for (j1 = j0 + 1; j1 < tmp.size(); j1++)
-		if (tmp[j1][j0] > 1e-6)
+		if (tmp[j1][j0] > EPS || tmp[j1][j0] < -EPS)
 			break;
 	if (j1 == tmp.size())
 		return -1;
 
-	for (size_t i = 0; i++ < tmp.size(); i++)
-		std::swap(tmp[j0][i], tmp[j1][i]);
+	tmp[j0].swap(tmp[j1]);
+	/*
+	 *for (size_t i = 0; i++ < tmp.size(); i++)
+	 *    std::swap(tmp[j0][i], tmp[j1][i]);
+	 */
 	return 0;
 }
 
@@ -349,7 +337,7 @@ double det(const Matrix_NN& m)
 	double coeff;
 	for (j = 0; j < tmp.N; j++)
 	{
-		if (tmp.data[j][j] && switch_rows(tmp, j) == -1)
+		if (!tmp.data[j][j] && switch_rows(tmp, j) == -1)
 				return 0;
 		for (i = j + 1; i < tmp.N; i++)
 		{
@@ -370,8 +358,10 @@ double det(const Matrix_NN& m)
 
 Matrix_NN invert(const Matrix_NN& m)
 {
+	if (det(m) < EPS && det(m) > -EPS)
+		throw std::runtime_error("Can't invert matrix with det(A) = 0!");
+
 	Matrix_NN tmp(m), inv(m.N);
-	
 	long long i, j, k;
 	long long size = m.N;
 	for (i = 0; i < size; i++)
