@@ -1,26 +1,27 @@
 #include <fstream>
 #include <cerrno>
 #include <cstring>
+#include <string>
 #include <stack>
 #include <vector>
-#include "matrix_nn.hpp"
+#include "polynome.hpp"
 
 /*******************/
 /* operands parser */
 /*******************/
 
-static Polynome parse_polynome(std::ifstream &fin, std::string<int> &order)
+static Polynome parse_polynome(std::ifstream &fin, std::vector<int> &order)
 {
 	std::string str;
 	char c;
 
-	while (fin >> c && c != '}')
+	while (fin >> c && c != ']' && c != ';')
 		str.push_back(c);
-	if (tmp != "}")
-		throw std::invalid_argument("Wrong end of matrix!");
+	if (c != ']')
+		throw std::invalid_argument("Wrong end of polynome!");
 
 	order.push_back(1);
-	return Polynome(tmp.c_str());
+	return Polynome(str.c_str());
 }
 
 /********************/
@@ -42,7 +43,7 @@ static int is_operation(std::string &c)
 	return 0;
 }
 
-static void make_unary_matrix_op(std::stack<Polynome> &op_p,
+static void make_unary_polynome_op(std::stack<Polynome> &op_p,
 								std::vector<int> &op_order,
 								std::stack<std::string> &operators)
 {
@@ -57,7 +58,7 @@ static void make_unary_matrix_op(std::stack<Polynome> &op_p,
 
 	bool result;
 	if (op == "is_homogenous")
-		result = is_homogenos_polynome(p);
+		result = is_homogenous_polynome(p);
 	else
 		result = is_harmonic_polynome(p);
 
@@ -69,12 +70,12 @@ static void make_unary_matrix_op(std::stack<Polynome> &op_p,
 	op_order.push_back(1);
 }
 
-static void make_op(std::stack<Polynome> &op_m,
-					std::stack<double> &op_n,
+static void make_op(std::stack<Polynome> &op_p,
+					std::stack<std::string> &op_chs,
 					std::vector<int> &op_order,
 					std::stack<std::string> &operators)
 {
-	// det, inv, transp, tr, exp
+	// is_homogenpus, is_harmonic 
 	if (is_operation(operators.top()) == 5)
 	{
 		make_unary_polynome_op(op_p, op_order, operators);
@@ -82,96 +83,69 @@ static void make_op(std::stack<Polynome> &op_m,
 	}
 
 	// binary operations
-	size_t ord_size = op_order.size();
 	std::string op = operators.top(); operators.pop();
 	Polynome a, b;
-	double f, g;
+	std::string charset, tmp;
+	size_t ord_size = op_order.size();
 	if (ord_size < 2)
 		throw std::runtime_error("Not enought operands!");
 
 	if (op_order[ord_size - 1] == 1 && op_order[ord_size - 2] == 2
-			&& (op == "*" || is_operation(op) == 2))
+			&& (op == "/" || is_operation(op) == 2))
 	{
-		f = op_n.top(); op_n.pop();
-		b = op_m.top(); op_m.pop();
+		a = op_p.top(); op_p.pop();
+		charset = op_chs.top(); op_chs.pop();
 		op_order.pop_back(); op_order.pop_back();
 
 		// arifmetics
-		if (op == "*")
-		{
-			op_m.push(f * b);
-			op_order.push_back(2);
-			return;
-		}
-	
-		// equals or not
-		if (op == "==")
-			op_n.push(0);
+		if (op == "/")
+			op_p.push(a / charset.c_str());
+		else if (op == "==")	// equals or not
+			op_p.push(Polynome("0"));
 		else
-			op_n.push(1);
+			op_p.push(Polynome("1"));
 		op_order.push_back(1);
 	}
 	else if (op_order[ord_size - 1] == 2 && op_order[ord_size - 2] == 1
-						&& (is_operation(op) == 4 || is_operation(op) == 2)) {
-		a = op_m.top(); op_m.pop();
-		g = op_n.top(); op_n.pop();
+						&& (is_operation(op) == 2)) {
+		a = op_p.top(); op_p.pop();
+		charset = op_chs.top(); op_chs.pop();
 		op_order.pop_back(); op_order.pop_back();
-
-		// arifmetics
-		if (op == "*" || op == "/")
-		{
-			if (op == "*")
-				op_m.push(a * g);
-			else
-				op_m.push(a / g);
-			op_order.push_back(2);
-			return;
-		}
 
 		// equals or not
 		if (op == "==")
-			op_n.push(0);
+			op_p.push(Polynome("0"));
 		else
-			op_n.push(1);
+			op_p.push(Polynome("1"));
 		op_order.push_back(1);
 	}
 	else if (op_order[ord_size - 1] == 1 && op_order[ord_size - 2] == 1) {
-		g = op_n.top(); op_n.pop();
-		f = op_n.top(); op_n.pop();
+		b = op_p.top(); op_p.pop();
+		a = op_p.top(); op_p.pop();
 		op_order.pop_back(); op_order.pop_back();
 
-		if (op == "+") op_n.push(f + g);
-		else if (op == "-") op_n.push(f - g);
-		else if (op == "*") op_n.push(f * g);
-		else if (op == "/") op_n.push(f / g);
-		else if (op == "==") op_n.push(f == g);
-		else if (op == "!=") op_n.push(f != g);
+		if (op == "+") op_p.push(a + b);
+		else if (op == "-") op_p.push(a - b);
+		else if (op == "*") op_p.push(a * b);
+		else if (op == "==") op_p.push(Polynome((a == b) ? "1" : "0"));
+		else if (op == "!=") op_p.push(Polynome((a != b) ? "1" : "0"));
+		else
+			throw std::runtime_error("Can't divide polynome by polynome :C");
 		op_order.push_back(1);
 	}
-	else if (op_order[ord_size - 1] == 2 && op_order[ord_size - 2] == 2)
+	else if (op_order[ord_size - 1] == 2 && op_order[ord_size - 2] == 2
+			&& is_operation(op) == 2)
 	{
-		b = op_m.top(); op_m.pop();
-		a = op_m.top(); op_m.pop();
+		charset = op_chs.top(); op_chs.pop();
+		tmp = op_chs.top(); op_chs.pop();
 		op_order.pop_back(); op_order.pop_back();
 
 		// equals or not
-		if (is_operation(op) == 2)
-		{
-			if (op == "==")
-				op_n.push(a == b);
-			else
-				op_n.push(a != b);
-			op_order.push_back(1);
-			return;
-		}
-		
-		// arifmetics
-		if (op == "*") op_m.push(a * b);
-		else if (op == "+") op_m.push(a + b);
-		else if (op == "-") op_m.push(a - b);
-		else if (op == "/")
-			throw std::runtime_error("Unable to divide matrix by matrix!");
-		op_order.push_back(2);
+		if (op == "==")
+			op_p.push(Polynome((tmp == charset) ? "1" : "0"));
+		else
+			op_p.push(Polynome((tmp != charset) ? "1" : "0"));
+		op_order.push_back(1);
 	}
 	else
 		throw std::runtime_error("invalid operands for operation!");
@@ -179,7 +153,7 @@ static void make_op(std::stack<Polynome> &op_m,
 
 static void push_to_stack(std::string cur,
 						  std::stack<Polynome> &op_p,
-						  std::stack<double> &op_chs,
+						  std::stack<std::string> &op_chs,
 						  std::vector<int> &op_order,
 						  std::stack<std::string> &operators)
 {
@@ -209,7 +183,7 @@ static void push_to_stack(std::string cur,
 
 static int parse_expretion(std::ifstream &fin, std::string &out, size_t expr_n)
 {
-	std::stack<Polynomes> operands_p;
+	std::stack<Polynome> operands_p;
 	std::stack<std::string> operands_chs;
 	std::vector<int> operands_order;
 	std::stack<std::string> operators;
@@ -230,7 +204,7 @@ static int parse_expretion(std::ifstream &fin, std::string &out, size_t expr_n)
 			}
 			else if (is_operation(word))
 			{
-				out += word;
+				out += word + " ";
 				push_to_stack(word, operands_p, operands_chs,
 													operands_order, operators);
 			}

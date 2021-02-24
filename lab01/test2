@@ -1,0 +1,25 @@
+[ xy2 + z3 ] ;
+
+[ x2 ] + [ y2 ] ;
+
+[ x2 ] + [ y2] + [ z2 ] + [ x ] + [ y ] ;
+
+[ x2y2z2 + x + y+z ] * [ 2 ] ;
+
+[ xy2 ] == [ y2x ] ;
+
+[ xy2 ] == [ yx2 ] ;
+
+[ 15 ] + [ 14 ] + [ 0 ];
+
+[ x + y123 + z] - [ y123 ] ;
+
+is_homogenous ( [ xyz + x2y + x3 + z3 + z2y ] ) ;
+
+is_homogenous [ xy + zx + zy ] ;
+
+is_homogenous [ x5 + y2  + 2 ] ;
+
+is_harmonic [ xyz + x + y + z ] ;
+
+is_harmonic [ x10 + y1 + z3 ] ;
