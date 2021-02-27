@@ -1,4 +1,4 @@
-#include "polynome.hpp"
+#include "nomes.hpp"
 
 /************************/
 /*		  UTILS		    */
@@ -52,6 +52,11 @@ Polynome::Polynome(const Polynome &copy)
 	container = copy.container;
 }
 
+Polynome::Polynome(const Monome &monome)
+{
+	container.push_back(monome);
+}
+
 /************************/
 /*		OPERATOR=		*/
 /************************/
@@ -66,6 +71,13 @@ Polynome& Polynome::operator=(const char *str)
 {
 	Polynome tmp(str);
 	container = tmp.container;
+	return (*this);
+}
+
+Polynome& Polynome::operator=(const Monome &m)
+{
+	container.clear();
+	container.push_back(m);
 	return (*this);
 }
 

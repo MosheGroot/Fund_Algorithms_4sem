@@ -1,4 +1,4 @@
-#include "polynome.hpp"
+#include "nomes.hpp"
 
 #define STEP_BY_STEP
 #define SPL << "\n--------\n"

@@ -4,7 +4,7 @@
 #include <string>
 #include <stack>
 #include <vector>
-#include "polynome.hpp"
+#include "nomes.hpp"
 
 /*******************/
 /* operands parser */

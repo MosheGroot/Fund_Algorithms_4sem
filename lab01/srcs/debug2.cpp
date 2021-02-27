@@ -1,4 +1,4 @@
-#include "monome.hpp"
+#include "nomes.hpp"
 
 #define STEP_BY_STEP
 #define SPL << "\n--------\n"
@@ -94,7 +94,7 @@ void test4()
 	b = b;
 	std::cout << "a : " << a SPL << "b : " << b SPL << std::endl;
 	std::cout << "a == b : " << (a == b) << std::endl;
-	std::cout << "\nNext expected numbers of errors: 4" << std::endl;
+	std::cout << "\nNext expected numbers of errors: 2" << std::endl;
 	try
 	{
 		std::cout << a + b << std::endl;

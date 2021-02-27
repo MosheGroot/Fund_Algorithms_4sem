@@ -3,7 +3,7 @@ OBJS_DIR= ./objs
 HEADERS	= ./headers
 
 ND1_OBJS= debug1.o matrix_nn.o
-ND2_OBJS= debug2.o monome.o
+ND2_OBJS= debug2.o monome.o polynome.o
 ND3_OBJS= debug3.o monome.o polynome.o 
 NM1_OBJS= main.o matrix_nn.o parser1.o
 NM2_OBJS= main.o polynome.o monome.o parser2.o

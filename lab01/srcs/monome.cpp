@@ -1,4 +1,4 @@
-#include "monome.hpp"
+#include "nomes.hpp"
 
 /************************/
 /*		UTILS			*/
@@ -108,9 +108,9 @@ Monome& Monome::operator+=(const Monome &m)
 	return (*this);
 }
 
-Monome Monome::operator+(const Monome &m) const
+Polynome Monome::operator+(const Monome &m) const
 {
-	Monome tmp(*this);
+	Polynome tmp(*this);
 	tmp += m;
 	return tmp;
 }
@@ -129,9 +129,9 @@ Monome& Monome::operator-=(const Monome &m)
 	return (*this);
 }
 
-Monome Monome::operator-(const Monome &m) const
+Polynome Monome::operator-(const Monome &m) const
 {
-	Monome tmp(*this);
+	Polynome tmp(*this);
 	tmp -= m;
 	return tmp;
 }
