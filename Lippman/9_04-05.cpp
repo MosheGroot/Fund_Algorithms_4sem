@@ -8,7 +8,7 @@ bool bool_search(std::vector<int>::iterator begin,
 					std::vector<int>::iterator end,
 					int to_find)
 {
-	while (begin != end)
+	while (begin < end)
 	{
 		if (*begin == to_find)
 			return true;
@@ -25,7 +25,7 @@ std::vector<int>::iterator it_search(std::vector<int>::iterator begin,
 										std::vector<int>::iterator end,
 										int to_find)
 {
-	while (begin != end)
+	while (begin < end)
 	{
 		if (*begin == to_find)
 			break;
