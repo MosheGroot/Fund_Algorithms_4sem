@@ -66,63 +66,16 @@ private:
 template<typename T>
 class rb_tree : public binary_tree<T>
 {
-public:
 	rb_tree_node<T>		*root;
 
 	/* BALANCE CHECK */
-	static unsigned char	get_ncolor(rb_tree_node<T> *node)
-	{
-		if (!node || node->color = BLACK)
-			return BLACK;
-		return RED;
-	}
+	static unsigned char	get_node_color(rb_tree_node<T>* node);
+	static inline void		balance_check_1(rb_tree_node<T>* grandfather, rb_tree_node<T>* child);
+	static inline void		balance_check_2(rb_tree_node<T>* g);
+	static inline void		add_node_as_child(const T& value, rb_tree_node<T>** child);
 
-	static inline void		balance_check_1(rb_tree_node<T> *grandfather, rb_tree_node<T> *child)
-	{
-		if (!grandfather || get_ncolor(grandfather) != BLACK || get_ncolor(child) != RED ||
-			get_ncolor(grandfather->left) != RED || get_ncolor(grandfather->right) != RED)
-			return;
-
-		grandfather->color = RED;
-		grandfather->left->color = BLACK;
-		grandfather->right->color = BLACK;
-	}
-
-	static inline void		balance_check_2(rb_tree_node<T> *g)
-	/* push */
-	static inline void		add_node_as_child(const T& value, rb_tree_node<T> **child)
-	{
-		rb_tree_node<T>	*current = root;
-		int cmp;
-		while (true)
-		{
-			cmp = this->cmp(value, current->data);
-			if (cmp < 0)
-			{
-				if (!current->left)
-					current = current->left;
-				else
-				{
-					current->left = new rb_tree_node<T>(value, current);
-					*child = current->left;
-					break;
-				}
-			}
-			else if (cmp > 0)
-			{
-				if (!current->right)
-					current = current->right;
-				else
-				{
-					current->right = new rb_tree_node<T>(value, current);
-					*child = current->right;
-					break;
-				}
-			}
-		}
-	}
-
-	virtual void	push(const T& value)
+public:
+	void	push(const T& value) override
 	{
 		if (!root)
 		{
@@ -140,3 +93,64 @@ public:
 	virtual void	pop(const T& value) = 0;
 	virtual bool	search(const T& value) = 0;
 };
+
+/* rb_tree push utils */
+
+template<typename T>
+static unsigned char	rb_tree<T>::get_node_color(rb_tree_node<T>* node)
+{
+	if (!node || node->color = BLACK)
+		return BLACK;
+	return RED;
+}
+
+template<typename T>
+static inline void		rb_tree<T>::balance_check_1(rb_tree_node<T>* grandfather, rb_tree_node<T>* child)
+{
+	if (!grandfather || get_ncolor(grandfather) != BLACK || get_ncolor(child) != RED ||
+		get_ncolor(grandfather->left) != RED || get_ncolor(grandfather->right) != RED)
+		return;
+
+	grandfather->color = RED;
+	grandfather->left->color = BLACK;
+	grandfather->right->color = BLACK;
+}
+
+template<typename T>
+static inline void		rb_tree<T>::balance_check_2(rb_tree_node<T>* g)
+{
+}
+
+/* push */
+template<typename T>
+static inline void		rb_tree<T>::add_node_as_child(const T& value, rb_tree_node<T>** child)
+{
+	rb_tree_node<T>* current = root;
+	int cmp;
+	while (true)
+	{
+		cmp = this->cmp(value, current->data);
+		if (cmp < 0)
+		{
+			if (!current->left)
+				current = current->left;
+			else
+			{
+				current->left = new rb_tree_node<T>(value, current);
+				*child = current->left;
+				break;
+			}
+		}
+		else if (cmp > 0)
+		{
+			if (!current->right)
+				current = current->right;
+			else
+			{
+				current->right = new rb_tree_node<T>(value, current);
+				*child = current->right;
+				break;
+			}
+		}
+	}
+}
