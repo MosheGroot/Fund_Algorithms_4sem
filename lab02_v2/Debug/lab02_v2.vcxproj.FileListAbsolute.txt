@@ -1,0 +1,2 @@
+C:\Users\user\source\repos\Fund_Algorithms_4sem\lab02_v2\Debug\lab02_v2.exe
+C:\Users\user\source\repos\Fund_Algorithms_4sem\lab02_v2\Debug\lab02_v2.pdb
