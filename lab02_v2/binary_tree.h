@@ -84,11 +84,26 @@ private:
 	inline void				_balance_case_3(RB_node<T>* node);
 
 	void					_delete_process(RB_node<T>* node);
-	inline void				_delete_case_red_2(RB_node<T>* node);
-	inline void				_delete_case_black_2(RB_node<T>* node);
+	inline void				_delete_case_rb_2(RB_node<T>* node);
 	inline void				_delete_case_black_1(RB_node<T>* node);
 	inline void				_delete_case_red_0(RB_node<T>* node);
 	inline void				_delete_case_black_0(RB_node<T>* node);
+
+	void					_delete_balance_process_left(RB_node<T>* brother);
+	inline void				_delete_balance_case_l1__rb(RB_node<T>* node);
+	inline void				_delete_balance_case_l2__rb(RB_node<T>* node);
+	inline void				_delete_balance_case_l3__rb(RB_node<T>* node);
+	inline void				_delete_balance_case_l4__br(RB_node<T>* node);
+	inline void				_delete_balance_case_l5__bb(RB_node<T>* node);
+	inline void				_delete_balance_case_l6__bb(RB_node<T>* node);
+
+	void					_delete_balance_process_right(RB_node<T>* brother);
+	inline void				_delete_balance_case_r1__rb(RB_node<T>* node);
+	inline void				_delete_balance_case_r2__rb(RB_node<T>* node);
+	inline void				_delete_balance_case_r3__rb(RB_node<T>* node);
+	inline void				_delete_balance_case_r4__br(RB_node<T>* node);
+	inline void				_delete_balance_case_r5__bb(RB_node<T>* node);
+	inline void				_delete_balance_case_r6__bb(RB_node<T>* node);
 
 	static inline unsigned char		__get_node_color(const RB_node<T>* node);
 	static inline unsigned char		__get_branch(const RB_node<T>* node);
@@ -107,7 +122,7 @@ public:
 	RB_tree(Comparator<T>* comparator)
 		: Binary_tree<T>(comparator)
 	{
-		root = nullptr;
+		this->root = nullptr;
 	}
 
 	~RB_tree()
@@ -343,7 +358,7 @@ void		RB_tree<T>::pop(const T& value)
 ////// utils
 
 template<typename T>
-static inline size_t		RB_tree<T>::__count_children(RB_node<T>* node)
+static inline size_t			RB_tree<T>::__count_children(RB_node<T>* node)
 {
 	if (!node)
 		return (-1);
@@ -351,7 +366,7 @@ static inline size_t		RB_tree<T>::__count_children(RB_node<T>* node)
 }
 
 template<typename T>
-static inline RB_node<T>*			RB_tree<T>::__find_min(RB_node<T>* node)
+static inline RB_node<T>*		RB_tree<T>::__find_min(RB_node<T>* node)
 {
 	while (node->left)
 		node = node->left;
@@ -359,7 +374,7 @@ static inline RB_node<T>*			RB_tree<T>::__find_min(RB_node<T>* node)
 }
 
 template<typename T>
-static inline RB_node<T>*			 RB_tree<T>::__find_max(RB_node<T>* node)
+static inline RB_node<T>*		RB_tree<T>::__find_max(RB_node<T>* node)
 {
 	while (node->right)
 		node = node->right;
@@ -375,41 +390,113 @@ void					RB_tree<T>::_delete_process(RB_node<T>* node)
 		return;
 
 	size_t	children_count = __count_children(node);
-	if (node->color == BLACK)
-	{
-		if (children_count == 2)
-			_delete_case_red_2(node);
-		else // only 0 can be
-			_delete_case_red_0(node);
-	}
-	else // node->color == RED
-	{
-		if (children_count == 2)
-			_delete_case_black_2(node);
-		else if (children_count == 1)
-			_delete_case_black_1(node);
-		else
-			_delete_case_black_0(node);
-	}
+
+	if (children_count == 2)
+		_delete_case_rb_2(node);
+	else if (children_count == 1)
+		_delete_case_black_1(node); // red node can't have 1 child
+	else if (node->color == RED) // children_count == 0
+		_delete_case_red_0(node);
+	else // node->color == BLACK
+		_delete_case_black_0(node);
 }
 
 template<typename T>
-inline void				RB_tree<T>::_delete_case_red_2(RB_node<T>* node)
+inline void				RB_tree<T>::_delete_case_rb_2(RB_node<T>* node)	// red or black node with 2 children
 {
+	RB_node<T>*		to_swap_node = __find_min(node->right);
 
+	std::swap(node->data, to_swap_node->data);
+	_delete_process(to_swap_node);
 }
 
 template<typename T>
-inline void				RB_tree<T>::_delete_case_black_2(RB_node<T>* node);
+inline void				RB_tree<T>::_delete_case_black_1(RB_node<T>* node) // black node with 1 child
+{
+	if (node->left)
+	{
+		std::swap(node->data, node->left->data);
+		_delete_process(node->left);
+	}
+	else // node->right ||| (node->right != nullptr) guaranteed
+	{
+		std::swap(node->data, node->right->data);
+		_delete_process(node->right);
+	}
+}
 
 template<typename T>
-inline void				RB_tree<T>::_delete_case_black_1(RB_node<T>* node);
+inline void				RB_tree<T>::_delete_case_red_0(RB_node<T>* node) // red node with 0 children
+{
+	if (__get_branch(node) == LEFT_BRANCH)
+		node->prev->left = nullptr;
+	else // __get_branch(node) == RIGHT_BRANCH
+		node->prev->right = nullptr;
+	delete node;
+}
 
 template<typename T>
-inline void				RB_tree<T>::_delete_case_red_0(RB_node<T>* node);
+inline void				RB_tree<T>::_delete_case_black_0(RB_node<T>* node) // black node with 0 children
+{
+	RB_node<T>*		balance_target = __get_brother(node);
+	unsigned char	branch = __get_branch(node);
+
+	if (branch == LEFT_BRANCH)
+		node->prev->left = nullptr;
+	else if (branch == RIGHT_BRANCH)
+		node->prev->right = nullptr;
+	else // branch == ROOT
+		this->root = nullptr;
+	delete node;
+
+	// black height was changed! Need to balance...
+	_delete_balance_process(balance_target);
+}
+
+///// balance after case_black_0 delete
 
 template<typename T>
-inline void				RB_tree<T>::_delete_case_black_0(RB_node<T>* node);
+void					RB_tree<T>::_delete_balance_process_left(RB_node<T>* node)
+{
+	if (!node)
+		return;
+
+	if (brother->prev.color == RED)
+	{
+		// (brother.color == BLACK) guaranteed by the rules
+		if (__get_node_color(brother->left) == RED)
+			_delete_balance_case_2__rb(brother);
+		else if (__get_node_color(brother->right) == BLACK) // brother->left.color = BLACK too
+			_delete_balance_case_1__rb(brother);
+		// else there is no need to balance
+	}
+	else // brother->prev.color == BLACK
+	{
+		if (brother->color == RED)
+		{
+			// brother->left.color == BLACK
+
+		}
+	}
+}
+
+template<typename T>
+inline void				RB_tree<T>::_delete_balance_case_l1__rb(RB_node<T>* node);
+
+template<typename T>
+inline void				RB_tree<T>::_delete_balance_case_l2__rb(RB_node<T>* node);
+
+template<typename T>
+inline void				RB_tree<T>::_delete_balance_case_l3__rb(RB_node<T>* node);
+
+template<typename T>
+inline void				RB_tree<T>::_delete_balance_case_l4__br(RB_node<T>* node);
+
+template<typename T>
+inline void				RB_tree<T>::_delete_balance_case_l5__bb(RB_node<T>* node);
+
+template<typename T>
+inline void				RB_tree<T>::_delete_balance_case_l6__bb(RB_node<T>* node);
 
 ////	SEARCH section 
 
